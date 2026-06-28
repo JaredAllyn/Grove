@@ -84,7 +84,8 @@ export async function POST(request: NextRequest) {
     const content = message.content[0]
     if (content.type !== 'text') throw new Error('Unexpected response type')
 
-    const result = JSON.parse(content.text)
+    const cleaned = content.text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim()
+    const result = JSON.parse(cleaned)
     return NextResponse.json(result)
   } catch (err: unknown) {
     console.error('AI estimate error:', err)
