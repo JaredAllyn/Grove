@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { use } from 'react'
+import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { sumNutrients, getDVPercent, DAILY_VALUES } from '@/lib/nutrients/dailyValues'
 import { FoodLogEntry, Nutrients } from '@/types/nutrition'
@@ -80,8 +80,9 @@ const TAB_KEYS = {
   Other: OTHER_KEYS,
 }
 
-export default function NutritionPage({ params }: { params: Promise<{ date: string }> }) {
-  const { date } = use(params)
+export default function NutritionPage() {
+  const params = useParams()
+  const date = params.date as string
   const [entries, setEntries] = useState<FoodLogEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<typeof TABS[number]>('Macros')
