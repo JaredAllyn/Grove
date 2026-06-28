@@ -8,6 +8,7 @@ import MacroSummary from '@/components/features/MacroSummary'
 import AiEstimator from '@/components/features/AiEstimator'
 import RingChart from '@/components/ui/RingChart'
 import { FoodLogEntry, MealType, UserGoals, Nutrients } from '@/types/nutrition'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { sumNutrients } from '@/lib/nutrients/dailyValues'
 import Skeleton from '@/components/ui/Skeleton'
@@ -91,6 +92,12 @@ export default function DashboardPage() {
         >
           →
         </button>
+        <Link
+          href={`/nutrition/${dateStr}`}
+          className="ml-auto text-sm text-clay hover:text-clay-light transition-colors"
+        >
+          Full nutrition →
+        </Link>
       </div>
 
       <div className="flex-1 px-6 md:px-10 py-8">
