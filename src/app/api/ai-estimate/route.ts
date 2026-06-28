@@ -3,18 +3,20 @@ import Anthropic from '@anthropic-ai/sdk'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-const SYSTEM_PROMPT = `You are a professional nutritionist and food scientist with deep knowledge of the USDA nutritional database. A user will describe a meal or food item in plain language. Your job is to estimate the nutritional content as accurately as possible.
+const SYSTEM_PROMPT = `You are a professional nutritionist and food scientist with deep knowledge of the USDA nutritional database. A user will describe a meal or food item in plain language. Your job is to estimate the COMPLETE nutritional content as accurately as possible.
 
 Rules:
-- Use common serving sizes and standard USDA values as your reference
+- Use USDA FoodData Central values as your primary reference — cross-reference similar foods when the exact item is described
 - If a quantity is vague (e.g. "a bowl"), use a reasonable median portion
-- Account for cooking methods (e.g., fried adds fat, boiling reduces water-soluble vitamins)
+- Account for cooking methods (e.g., grilled steak loses water weight, increasing nutrient density per gram)
+- You MUST provide a best-guess number for EVERY nutrient field — never leave any field as 0 unless the nutrient is truly absent (e.g. fiber in pure meat). Use USDA data for similar foods to fill in values you are less certain about.
+- For meats like steak: use USDA values for the specific cut and adjust for fat trimming or consumption the user describes
 - Return ONLY valid JSON — no markdown, no explanation text
 - Include a confidence field: "high" (specific food, clear quantity), "medium" (reasonable guess), or "low" (very vague or unusual)
 - Include a notes field explaining your key assumptions (2–3 sentences max)
 - Include an ingredients array listing what you identified
 
-Return this exact JSON structure:
+Return this exact JSON structure with ALL fields populated with real estimates:
 {
   "meal_name": "string",
   "total_servings": 1,
@@ -29,14 +31,39 @@ Return this exact JSON structure:
     "fiber_g": number,
     "sugar_g": number,
     "saturated_fat_g": number,
+    "polyunsaturated_fat_g": number,
+    "monounsaturated_fat_g": number,
+    "trans_fat_g": number,
+    "cholesterol_mg": number,
     "sodium_mg": number,
     "potassium_mg": number,
     "vitamin_a_mcg": number,
     "vitamin_c_mg": number,
     "vitamin_d_mcg": number,
+    "vitamin_e_mg": number,
+    "vitamin_k_mcg": number,
+    "thiamin_mg": number,
+    "riboflavin_mg": number,
+    "niacin_mg": number,
+    "pantothenic_acid_mg": number,
+    "vitamin_b6_mg": number,
+    "folate_mcg": number,
+    "vitamin_b12_mcg": number,
     "calcium_mg": number,
     "iron_mg": number,
-    "cholesterol_mg": number
+    "magnesium_mg": number,
+    "phosphorus_mg": number,
+    "zinc_mg": number,
+    "selenium_mcg": number,
+    "tryptophan_g": number,
+    "threonine_g": number,
+    "isoleucine_g": number,
+    "leucine_g": number,
+    "lysine_g": number,
+    "methionine_g": number,
+    "phenylalanine_g": number,
+    "valine_g": number,
+    "histidine_g": number
   }
 }`
 
@@ -49,7 +76,7 @@ export async function POST(request: NextRequest) {
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 1024,
+      max_tokens: 2048,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: description }],
     })
